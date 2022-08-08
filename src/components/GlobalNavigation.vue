@@ -20,6 +20,7 @@
         <span class="nav-item-text">Shop</span>
       </div>
     </router-link>
+    <span class="empty-space"></span>
     <router-link to="/rewards">
       <div class="nav-item">
         <inline-svg
@@ -58,18 +59,21 @@ export default {
   background-color: #fff;
   width: 100%;
   box-shadow: 2px 1px 20px 1px rgba(0, 0, 0, 0.05);
-  -webkit-box-shadow: 2px 1px 20px 1px rgba(0, 0, 0, 0.05);
-  -moz-box-shadow: 2px 1px 20px 1px rgba(0, 0, 0, 0.05);
   position: absolute;
   bottom: 0;
   left: 0;
+  z-index: 2;
+
+  & > * {
+    flex: 0 0 22%;
+  }
 
   a {
-    color: #3e4152;
+    color: #7f8fa6;
     text-decoration: none;
 
     &.router-link-exact-active {
-      color: #ff3f6c;
+      color: #192a56;
     }
   }
 
@@ -94,5 +98,10 @@ export default {
       display: block;
     }
   }
+}
+
+.empty-space {
+  display: inline-block;
+  flex: 0 0 12%;
 }
 </style>

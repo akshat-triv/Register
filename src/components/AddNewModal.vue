@@ -1,31 +1,31 @@
 <template>
   <global-modal :is-visible="props.isVisible" :z-index="4">
     <div class="new-task-modal-wrapper">
-      <label for="title" class="modal-input-label">Title</label>
-      <input
-        v-model="taskDetails.title"
-        type="text"
-        class="modal-input"
-        id="title"
-        placeholder="E.g. Learn Java"
-      />
-      <label for="description" class="modal-input-label">Description</label>
-      <input
-        v-model="taskDetails.description"
-        type="text"
-        class="modal-input"
-        id="description"
-        placeholder="E.g. Study java for next 1 hour"
-      />
-      <label for="time" class="modal-input-label">Time (Minutes)</label>
-      <input
-        v-model="taskDetails.duration"
-        type="number"
-        class="modal-input modal-input-number"
-        id="time"
-        step="30"
-        placeholder="E.g. 60"
-      />
+      <template
+        v-for="(inputData, inputIndex) in props.inputMeta"
+        :key="`input-${inputIndex}`"
+      >
+        <label :for="inputData.id" class="modal-input-label">
+          {{ inputData.label }}
+        </label>
+        <input
+          v-if="inputData.inputType === 'text'"
+          v-model="newItemDetails[inputData.id]"
+          type="text"
+          class="modal-input"
+          :id="inputData.id"
+          :placeholder="inputData.placeholder"
+        />
+        <input
+          v-else-if="inputData.inputType === 'number'"
+          v-model="newItemDetails[inputData.id]"
+          type="number"
+          class="modal-input modal-input-number"
+          :step="inputData.step"
+          :id="inputData.id"
+          :placeholder="inputData.placeholder"
+        />
+      </template>
       <div class="modal-bottom">
         <div class="points-wrapper">
           <img
@@ -38,7 +38,7 @@
         <div
           class="btn btn-primary"
           :class="{ disabled: addBtnDisabled }"
-          @click="addTaskInList"
+          @click="addNewItemInList"
         >
           Add
         </div>
@@ -58,13 +58,17 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  inputMeta: {
+    type: Array,
+    default: () => [],
+  },
 });
 
-const emit = defineEmits(["add-task"]);
+const emit = defineEmits(["add-new"]);
 
 const store = useStore();
 
-const taskDetails = reactive({
+const newItemDetails = reactive({
   title: null,
   description: null,
   duration: null,
@@ -72,22 +76,24 @@ const taskDetails = reactive({
 
 const pointsWorth = computed(() => {
   const valueOfOneMinute = store.getters["getValueOfOneMinute"];
-  return parseFloat(taskDetails.duration * valueOfOneMinute).toFixed(2);
+  return parseFloat(newItemDetails.duration * valueOfOneMinute).toFixed(2);
 });
 
 const addBtnDisabled = computed(() => {
   return (
-    !taskDetails.title || !taskDetails.description || !taskDetails.duration
+    !newItemDetails.title ||
+    !newItemDetails.description ||
+    !newItemDetails.duration
   );
 });
 
-function addTaskInList() {
+function addNewItemInList() {
   if (addBtnDisabled.value) return;
-  emit("add-task", { ...taskDetails });
+  emit("add-new", { ...newItemDetails });
   // Setting inputs to null
-  taskDetails.title = null;
-  taskDetails.description = null;
-  taskDetails.duration = null;
+  newItemDetails.title = null;
+  newItemDetails.description = null;
+  newItemDetails.duration = null;
 }
 </script>
 

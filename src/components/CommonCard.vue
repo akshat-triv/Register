@@ -21,16 +21,17 @@
       </div>
       <div
         class="btn btn-primary"
-        :class="{ disabled: timerDisabled }"
-        @click="startTimer"
+        :class="{ disabled: actionDisabled }"
+        @click="takeAction"
       >
-        {{ timerStarted ? "Stop" : "Start" }}
+        {{ primaryBtnText }}
       </div>
       <inline-svg
+        v-if="props.cardType !== 'reward'"
         :src="require('@/assets/trash.svg')"
         class="delete-icon"
         title=""
-        @click="emit('delete-task')"
+        @click="emit('delete-item')"
       ></inline-svg>
     </div>
   </div>
@@ -54,11 +55,17 @@ const props = defineProps({
     type: Number,
     default: 1,
   },
+  cardType: {
+    type: String,
+    default: "task",
+  },
 });
 
-const emit = defineEmits(["delete-task"]);
+const emit = defineEmits(["delete-item"]);
 
 const store = useStore();
+
+const wallet = computed(() => store.getters["getWallet"]);
 
 const minutes = ref(props.duration);
 const seconds = ref(0);
@@ -71,11 +78,21 @@ const pointsWorth = computed(() => {
 const timerActive = inject("timer-active");
 const timerStarted = ref(false);
 
+const primaryBtnText = computed(() => {
+  if (props.cardType === "shop") return "Buy";
+  return timerStarted.value ? "Stop" : "Start";
+});
+
 watch(timerStarted, (newValue) => {
   timerActive.value = newValue;
 });
 
-const timerDisabled = computed(() => timerActive.value && !timerStarted.value);
+const actionDisabled = computed(() => {
+  if (props.cardType === "shop") {
+    return wallet.value < pointsWorth.value;
+  }
+  return timerActive.value && !timerStarted.value;
+});
 
 const displaySeconds = computed(() => {
   if (seconds.value < 10) return `0${seconds.value}`;
@@ -89,8 +106,7 @@ const displayMinutes = computed(() => {
 
 let newTimer;
 
-function startTimer() {
-  if (timerDisabled.value) return;
+function startTimer(callBack) {
   timerStarted.value = !timerStarted.value;
 
   if (!timerStarted.value) {
@@ -106,12 +122,43 @@ function startTimer() {
     } else seconds.value--;
 
     if (minutes.value === 0 && seconds.value === 0) {
-      store.dispatch("addMoneyInWallet", pointsWorth.value);
+      // store.dispatch("addMoneyInWallet", pointsWorth.value);
+      if (callBack) callBack();
       timerStarted.value = false;
       minutes.value = props.duration;
       clearInterval(newTimer);
     }
   }, 1000);
+}
+
+function addMoneyInWallet() {
+  store.dispatch("addMoneyInWallet", pointsWorth.value);
+}
+
+function spendMoneyFromWallet() {
+  store.dispatch("spendMoneyFromWallet", pointsWorth.value);
+}
+
+function addRewardInList() {
+  store.dispatch("addRewardInList", {
+    title: props.title,
+    description: props.description,
+    duration: props.duration,
+  });
+}
+
+function deleteReward() {
+  emit("delete-item");
+}
+
+function takeAction() {
+  if (actionDisabled.value) return;
+
+  if (props.cardType === "task") startTimer(addMoneyInWallet);
+  else if (props.cardType === "shop") {
+    spendMoneyFromWallet();
+    addRewardInList();
+  } else if (props.cardType === "reward") startTimer(deleteReward);
 }
 </script>
 
@@ -193,6 +240,10 @@ function startTimer() {
   &-heading {
     font-size: 1.6rem;
     margin-bottom: 0.4rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   &-body {
@@ -208,6 +259,10 @@ function startTimer() {
   &-description {
     font-size: 1.2rem;
     font-weight: 300;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 }
 

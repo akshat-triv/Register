@@ -3,7 +3,7 @@
     <span class="app-name">रजिस्टर</span>
     <div class="points-wrapper">
       <img class="points-icon" src="@/assets/gold-coin.png" alt="gold-coin" />
-      <span class="points-text">{{ wallet }}</span>
+      <span class="points-text">{{ displayWallet }}</span>
     </div>
   </header>
 </template>
@@ -14,7 +14,11 @@ import { useStore } from "vuex";
 
 const store = useStore();
 
-const wallet = computed(() => store.getters["getWallet"]);
+const displayWallet = computed(() => {
+  const wallet = store.getters["getWallet"];
+  if (wallet >= 1000) return `${(wallet / 1000).toFixed(2)}k`;
+  return parseFloat(wallet).toFixed(2);
+});
 </script>
 
 <style lang="scss" scoped>

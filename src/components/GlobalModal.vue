@@ -6,7 +6,7 @@
       :style="{ 'z-index': props.zIndex }"
     >
       <div class="add-new-modal-backdrop"></div>
-      <div class="add-new-modal">
+      <div class="add-new-modal" @click.stop="">
         <slot></slot>
       </div>
     </div>

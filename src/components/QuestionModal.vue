@@ -1,5 +1,9 @@
 <template>
-  <global-modal :is-visible="props.isVisible" :z-index="5">
+  <global-modal
+    :is-visible="props.isVisible"
+    :z-index="5"
+    @click="closeWhenClickedOutside ? emit('closeModal') : ''"
+  >
     <div class="question-modal-wrapper">
       <label for="salary" class="modal-input-label">
         How much is money you make in a month?
@@ -54,6 +58,10 @@ const props = defineProps({
   isVisible: {
     type: Boolean,
     default: true,
+  },
+  closeWhenClickedOutside: {
+    type: Boolean,
+    default: false,
   },
 });
 

@@ -1,12 +1,11 @@
 <template>
   <global-modal :is-visible="isVisible" :z-index="5">
-    <div class="confirm-modal-wrapper">
-      <span class="confirm-modal-message">
-        {{ props.confirmMessage }}
+    <div class="alert-modal-wrapper">
+      <span class="alert-modal-message">
+        {{ props.alertMessage }}
       </span>
       <div class="modal-bottom">
-        <div class="btn btn-primary" @click="closeModal(1)">Yes</div>
-        <div class="btn" @click="closeModal(0)">No</div>
+        <div class="btn btn-primary" @click="closeModal(1)">Ok</div>
       </div>
     </div>
   </global-modal>
@@ -17,7 +16,7 @@ import { ref } from "vue";
 import GlobalModal from "./GlobalModal.vue";
 
 const props = defineProps({
-  confirmMessage: {
+  alertMessage: {
     type: String,
     default: "This is an alert!",
   },
@@ -25,25 +24,25 @@ const props = defineProps({
 
 const isVisible = ref(false);
 
-const confirmResolve = ref(null);
+const alertResolve = ref(null);
 
-function openConfirm() {
+function openAlert() {
   isVisible.value = true;
   return new Promise((resolve) => {
-    confirmResolve.value = resolve;
+    alertResolve.value = resolve;
   });
 }
 
 function closeModal(userInput) {
-  confirmResolve.value(userInput);
+  alertResolve.value(userInput);
   isVisible.value = false;
 }
 
-defineExpose({ openConfirm });
+defineExpose({ openAlert });
 </script>
 
 <style lang="scss" scoped>
-.confirm-modal {
+.alert-modal {
   &-wrapper {
     display: flex;
     flex-direction: column;

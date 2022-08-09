@@ -1,13 +1,13 @@
 <template>
   <div class="common-board">
     <common-card
-      v-for="(taskDetails, taskIndex) in taskList"
-      :key="`task-${taskIndex}`"
-      :card-type="'task'"
-      :title="taskDetails.title"
-      :description="taskDetails.description"
-      :duration="taskDetails.duration"
-      @delete-item="deleteTask(taskIndex)"
+      v-for="(shopItemDetails, shopItemIndex) in shopList"
+      :key="`shop-item-${shopItemIndex}`"
+      :card-type="'shop'"
+      :title="shopItemDetails.title"
+      :description="shopItemDetails.description"
+      :duration="shopItemDetails.duration"
+      @delete-item="deleteShopItem(shopItemIndex)"
     />
     <div
       class="add-button"
@@ -17,16 +17,16 @@
       +
     </div>
     <teleport to="#app">
-      <new-task-modal
+      <new-shop-item-modal
         :is-visible="modelActive"
-        :input-meta="addNewTaskMeta"
-        @add-new="addTaskInList"
+        :input-meta="newShopItemMeta"
+        @add-new="addShopItemInList"
       />
     </teleport>
     <teleport to="#app">
       <confirm-modal
         ref="confirm"
-        :confirm-message="'Are you sure you want to delete the task?'"
+        :confirm-message="'Are you sure you want to delete the item?'"
       />
     </teleport>
   </div>
@@ -34,52 +34,52 @@
 
 <script setup>
 import { computed } from "@vue/reactivity";
-import { provide, ref } from "vue";
+import { ref } from "vue";
 import { useStore } from "vuex";
 import CommonCard from "../components/CommonCard.vue";
-import NewTaskModal from "../components/AddNewModal.vue";
+import NewShopItemModal from "../components/AddNewModal.vue";
 import ConfirmModal from "../components/ConfirmModal.vue";
 
-const timerIsActive = ref(false);
-provide("timer-active", timerIsActive);
+// const timerIsActive = ref(false);
+// provide("timer-active", timerIsActive);
 
 const modelActive = ref(false);
 const confirm = ref(null);
 
 const store = useStore();
 
-const taskList = computed({
+const shopList = computed({
   get() {
-    return store.getters["getTaskList"];
+    return store.getters["getShopList"];
   },
   set(value) {
-    store.dispatch("addTaskInList", value);
+    store.dispatch("addShopInList", value);
   },
 });
 
-function addTaskInList(taskDetails) {
-  taskList.value = taskDetails;
+function addShopItemInList(shopItemDetails) {
+  shopList.value = shopItemDetails;
   modelActive.value = false;
 }
 
-async function deleteTask(taskIndex) {
+async function deleteShopItem(shopItemIndex) {
   const userInput = await confirm.value.openConfirm();
   if (!userInput) return;
-  store.dispatch("deleteTaskInList", taskIndex);
+  store.dispatch("deleteShopInList", shopItemIndex);
 }
 
-const addNewTaskMeta = [
+const newShopItemMeta = [
   {
     label: "Title",
     inputType: "text",
     id: "title",
-    placeholder: "E.g. Learn Java",
+    placeholder: "E.g. Watch Netflix",
   },
   {
     label: "Description",
     inputType: "text",
     id: "description",
-    placeholder: "E.g. Study java for next 1 hour",
+    placeholder: "E.g. Watch Netflix for one hour",
   },
   {
     label: "Time (Minutes)",

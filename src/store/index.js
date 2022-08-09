@@ -9,6 +9,8 @@ export default createStore({
     },
     valueOfOneMinute: null,
     taskList: [],
+    shopList: [],
+    rewardList: [],
     wallet: 0,
   },
   getters: {
@@ -23,6 +25,12 @@ export default createStore({
     },
     getTaskList(state) {
       return state.taskList;
+    },
+    getShopList(state) {
+      return state.shopList;
+    },
+    getRewardList(state) {
+      return state.rewardList;
     },
   },
   mutations: {
@@ -43,9 +51,27 @@ export default createStore({
     },
     addTaskInList(state, taskDetails) {
       state.taskList = [...state.taskList, ...taskDetails];
+      localStorage.setItem("taskList", JSON.stringify(state.taskList));
     },
     deleteTaskInList(state, taskIndex) {
       state.taskList.splice(taskIndex, 1);
+      localStorage.setItem("taskList", JSON.stringify(state.taskList));
+    },
+    addShopInList(state, shopItemDetails) {
+      state.shopList = [...state.shopList, ...shopItemDetails];
+      localStorage.setItem("shopList", JSON.stringify(state.shopList));
+    },
+    deleteShopInList(state, shopItemIndex) {
+      state.shopList.splice(shopItemIndex, 1);
+      localStorage.setItem("shopList", JSON.stringify(state.shopList));
+    },
+    addRewardInList(state, rewardDetails) {
+      state.rewardList = [...state.rewardList, ...rewardDetails];
+      localStorage.setItem("rewardList", JSON.stringify(state.rewardList));
+    },
+    deleteRewardInList(state, rewardIndex) {
+      state.rewardList.splice(rewardIndex, 1);
+      localStorage.setItem("rewardList", JSON.stringify(state.rewardList));
     },
   },
   actions: {
@@ -58,6 +84,20 @@ export default createStore({
     },
     deleteTaskInList({ commit }, taskIndex) {
       commit("deleteTaskInList", taskIndex);
+    },
+    addShopInList({ commit }, shopItemDetails) {
+      if (!Array.isArray(shopItemDetails)) shopItemDetails = [shopItemDetails];
+      commit("addShopInList", shopItemDetails);
+    },
+    deleteShopInList({ commit }, shopItemIndex) {
+      commit("deleteShopInList", shopItemIndex);
+    },
+    addRewardInList({ commit }, rewardDetails) {
+      if (!Array.isArray(rewardDetails)) rewardDetails = [rewardDetails];
+      commit("addRewardInList", rewardDetails);
+    },
+    deleteRewardInList({ commit }, rewardIndex) {
+      commit("deleteRewardInList", rewardIndex);
     },
     addMoneyInWallet({ commit }, amount) {
       commit("addMoneyInWallet", amount);

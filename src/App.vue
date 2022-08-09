@@ -22,10 +22,15 @@ const store = useStore();
 onMounted(() => {
   const savedUserDetails = localStorage.getItem("userDetails");
   const savedTaskList = localStorage.getItem("taskList");
+  const savedShopList = localStorage.getItem("shopList");
+  const savedRewardList = localStorage.getItem("rewardList");
   const savedWalletMoney = localStorage.getItem("wallet");
   if (!savedUserDetails) userDetailsModal.value = true;
   else store.dispatch("updateUserDetails", JSON.parse(savedUserDetails));
   if (savedTaskList) store.dispatch("addTaskInList", JSON.parse(savedTaskList));
+  if (savedShopList) store.dispatch("addShopInList", JSON.parse(savedShopList));
+  if (savedRewardList)
+    store.dispatch("addRewardInList", JSON.parse(savedRewardList));
   if (savedWalletMoney)
     store.dispatch("addMoneyInWallet", parseFloat(savedWalletMoney));
 });
@@ -82,6 +87,46 @@ html {
     &:hover {
       cursor: not-allowed;
     }
+  }
+}
+
+.add-button {
+  color: #fff;
+  background-color: #192a56;
+  width: 5rem;
+  height: 5rem;
+  clip-path: circle(50%);
+  font-size: 3.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  box-shadow: 2px 1px 20px 1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+
+  &.close {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  &.disabled {
+    opacity: 0.7;
+    &:hover {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.common-board {
+  padding: 2.4rem 2rem;
+  flex: 1;
+  overflow: auto;
+
+  & > *:not(:last-of-type) {
+    margin-bottom: 2rem;
   }
 }
 </style>

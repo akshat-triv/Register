@@ -1,0 +1,6 @@
+{
+  "appId": "com.register.app",
+  "appName": "Register",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}

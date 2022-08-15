@@ -125,13 +125,13 @@ function startTimer(callBack) {
     const updatedMinutes = Math.floor(timeDifference / 60);
 
     // console.log(updatedSeconds, updatedMinutes);
-
-    if (seconds.value === 0) {
-      minutes.value = props.duration - (updatedMinutes + 1);
-      seconds.value = 60 - updatedSeconds;
-    } else if (updatedSeconds === 0) {
+    if (updatedSeconds === 0) {
       seconds.value = updatedSeconds;
-    } else seconds.value = 60 - updatedSeconds;
+    } else {
+      if (props.duration - (updatedMinutes + 1) !== minutes.value)
+        minutes.value = props.duration - (updatedMinutes + 1);
+      seconds.value = 60 - updatedSeconds;
+    }
 
     if (minutes.value === 0 && seconds.value === 0) {
       // store.dispatch("addMoneyInWallet", pointsWorth.value);

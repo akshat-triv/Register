@@ -143,12 +143,20 @@ function startTimer(callBack) {
   }, 1000);
 }
 
+function playNotificationAudio(type = "notification") {
+  const audioFile = type === "money" ? "cash_register" : "notification_sound";
+  const audio = new Audio(require(`@/assets/${audioFile}.mp3`));
+  audio.play();
+}
+
 function addMoneyInWallet() {
   store.dispatch("addMoneyInWallet", pointsWorth.value);
+  playNotificationAudio("money");
 }
 
 function spendMoneyFromWallet() {
   store.dispatch("spendMoneyFromWallet", pointsWorth.value);
+  playNotificationAudio("money");
 }
 
 function addRewardInList() {
@@ -161,6 +169,7 @@ function addRewardInList() {
 
 function deleteReward() {
   emit("delete-item");
+  playNotificationAudio();
 }
 
 function takeAction() {

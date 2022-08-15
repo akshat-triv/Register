@@ -95,29 +95,6 @@ function saveDetails() {
     flex-direction: column;
     align-items: flex-start;
     padding: 2rem;
-
-    .modal-input {
-      width: 100%;
-      font-size: 1.4rem;
-      outline: none;
-      border: none;
-      background-color: rgba(#dfe6e9, 0.4);
-      padding: 1rem;
-
-      &:not(:last-child) {
-        margin-bottom: 2.4rem;
-      }
-
-      &-number {
-        width: 10rem;
-      }
-
-      &-label {
-        font-size: 1.4rem;
-        font-weight: 800;
-        margin-bottom: 0.8rem;
-      }
-    }
   }
 }
 

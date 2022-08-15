@@ -23,7 +23,7 @@ const displayWallet = computed(() => {
 
 <style lang="scss" scoped>
 header {
-  background-color: #fff;
+  background-color: var(--surface-bg-color-1);
   box-shadow: 2px -4px 20px 1px rgba(0, 0, 0, 0.2);
   height: 6rem;
   width: 100%;
@@ -53,8 +53,8 @@ header {
     &-text {
       font-size: 1.4rem;
       display: inline-block;
-      background-color: #3e4152;
-      color: #fff;
+      background-color: var(--primary-color-1);
+      color: var(--text-color-dark);
       padding: 0.2rem 1.2rem;
       border-radius: 1.2rem;
       padding-left: 2rem;

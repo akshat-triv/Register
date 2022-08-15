@@ -210,7 +210,7 @@ function takeAction() {
     &-wrapper {
       display: flex;
       flex-direction: column;
-      color: white;
+      color: var(--text-color-dark);
       font-size: 2.4rem;
       height: 100%;
       flex: 0 0 25%;
@@ -220,7 +220,7 @@ function takeAction() {
       overflow: hidden;
     }
     &-upper {
-      background: #273c75;
+      background: var(--primary-color-2);
       color: currentColor;
       display: flex;
       flex: 0 0 50%;
@@ -228,7 +228,7 @@ function takeAction() {
       align-items: center;
     }
     &-lower {
-      background: #192a56;
+      background: var(--primary-color-1);
       color: currentColor;
       flex: 1;
       display: flex;
@@ -269,7 +269,7 @@ function takeAction() {
 .delete-icon {
   width: 2rem;
   height: 2rem;
-  fill: #192a56;
+  fill: var(--primary-color-1);
   margin-left: 2rem;
 }
 </style>

@@ -43,7 +43,7 @@ const props = defineProps({
 .add-new-modal {
   width: 90%;
   min-height: 6rem;
-  background: #fff;
+  background: var(--surface-bg-color-1);
   border-radius: 4px;
   position: absolute;
   top: 50%;
@@ -59,7 +59,7 @@ const props = defineProps({
   }
 
   &-backdrop {
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--modal-backdrop);
     width: 100%;
     height: 100%;
   }

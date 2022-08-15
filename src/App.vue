@@ -49,12 +49,24 @@ html {
   font-size: 62.5%;
 }
 
+:root {
+  --primary-color-1: #0e1b3e;
+  --primary-color-1-disabled: #7f8fa6;
+  --primary-color-2: #182d68;
+  --text-color: #3e4152;
+  --text-color-dark: #fff;
+  --surface-bg-color-1: #fff;
+  --surface-bg-color-2: #ecf0f1;
+  --input-bg-color: rgb(223, 230, 233, 0.4);
+  --modal-backdrop: rgba(0, 0, 0, 0.5);
+}
+
 #app {
   font-family: "Noto Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #3e4152;
+  color: var(--text-color);
   position: relative;
   width: 100%;
   height: 100vh;
@@ -67,7 +79,7 @@ html {
 .btn {
   padding: 0.8rem 2.4rem;
   font-size: 1.4rem;
-  border: 1px solid #ecf0f1;
+  border: 1px solid var(--surface-bg-color-2);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 
@@ -76,14 +88,15 @@ html {
   }
 
   &.btn-primary {
-    background-color: #192a56;
-    color: #fff;
+    background-color: var(--primary-color-1);
+    color: var(--text-color-dark);
     border: none;
     border-radius: 4px;
+    transition: all 0.3s;
   }
 
   &.disabled {
-    opacity: 0.7;
+    background-color: var(--primary-color-1-disabled);
     &:hover {
       cursor: not-allowed;
     }
@@ -91,8 +104,8 @@ html {
 }
 
 .add-button {
-  color: #fff;
-  background-color: #192a56;
+  color: var(--text-color-dark);
+  background-color: var(--primary-color-1);
   width: 5rem;
   height: 5rem;
   clip-path: circle(50%);
@@ -113,7 +126,7 @@ html {
   }
 
   &.disabled {
-    opacity: 0.7;
+    background-color: var(--primary-color-1-disabled);
     &:hover {
       cursor: not-allowed;
     }
@@ -127,6 +140,30 @@ html {
 
   & > *:not(:last-of-type) {
     margin-bottom: 2rem;
+  }
+}
+
+.modal-input {
+  width: 100%;
+  font-size: 1.4rem;
+  outline: none;
+  border: none;
+  background-color: var(--input-bg-color);
+  padding: 1rem;
+  border-radius: 4px;
+
+  &:not(:last-child) {
+    margin-bottom: 2.4rem;
+  }
+
+  &-number {
+    width: 10rem;
+  }
+
+  &-label {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
   }
 }
 </style>

@@ -69,11 +69,11 @@ export default {
   }
 
   a {
-    color: #7f8fa6;
+    color: var(--primary-color-1-disabled);
     text-decoration: none;
 
     &.router-link-exact-active {
-      color: #192a56;
+      color: var(--primary-color-1);
     }
   }
 

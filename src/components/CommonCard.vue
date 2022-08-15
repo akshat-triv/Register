@@ -111,15 +111,27 @@ function startTimer(callBack) {
 
   if (!timerStarted.value) {
     minutes.value = props.duration;
+    seconds.value = 0;
     clearInterval(newTimer);
     return;
   }
 
+  const startTime = Date.now();
+
   newTimer = setInterval(() => {
+    const currentTime = Date.now();
+    const timeDifference = parseInt((currentTime - startTime) / 1000);
+    const updatedSeconds = timeDifference % 60;
+    const updatedMinutes = Math.floor(timeDifference / 60);
+
+    // console.log(updatedSeconds, updatedMinutes);
+
     if (seconds.value === 0) {
-      minutes.value--;
-      seconds.value = 59;
-    } else seconds.value--;
+      minutes.value = props.duration - (updatedMinutes + 1);
+      seconds.value = 60 - updatedSeconds;
+    } else if (updatedSeconds === 0) {
+      seconds.value = updatedSeconds;
+    } else seconds.value = 60 - updatedSeconds;
 
     if (minutes.value === 0 && seconds.value === 0) {
       // store.dispatch("addMoneyInWallet", pointsWorth.value);

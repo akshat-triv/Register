@@ -8,9 +8,9 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import { NavigationBar } from "@hugotomazi/capacitor-navigation-bar";
 
 StatusBar.setStyle({ style: Style.Dark });
-StatusBar.setBackgroundColor({ color: "#0e1b3e" });
+StatusBar.setBackgroundColor({ color: "#050915" });
 
-NavigationBar.setColor({ color: "#0e1b3e" });
+NavigationBar.setColor({ color: "#050915" });
 
 const Vue = createApp(App);
 

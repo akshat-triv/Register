@@ -219,15 +219,19 @@ import { BackgroundTask } from "@capawesome/capacitor-background-task";
 App.addListener("appStateChange", (state) => {
   if (!state.isActive) {
     let taskId = BackgroundTask.beforeExit(() => {
-      if (timerStarted.value) pauseTimer();
       function endBackgroundTask() {
         BackgroundTask.finish({ taskId });
       }
-      startTimerWithAction(endBackgroundTask);
+      if (timerStarted.value) {
+        pauseTimer();
+        startTimerWithAction(endBackgroundTask);
+      } else endBackgroundTask();
     });
   } else {
-    pauseTimer();
-    startTimerWithAction();
+    if (timerStarted.value) {
+      pauseTimer();
+      startTimerWithAction();
+    }
   }
 });
 </script>

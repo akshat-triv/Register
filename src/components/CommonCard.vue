@@ -106,17 +106,26 @@ const displayMinutes = computed(() => {
 
 let newTimer;
 
+function stopTimer() {
+  minutes.value = props.duration;
+  seconds.value = 0;
+  clearInterval(newTimer);
+}
+
+function pauseTimer() {
+  clearInterval(newTimer);
+}
+
 function startTimer(callBack) {
-  timerStarted.value = !timerStarted.value;
+  let startTime = Date.now();
 
-  if (!timerStarted.value) {
-    minutes.value = props.duration;
-    seconds.value = 0;
-    clearInterval(newTimer);
-    return;
-  }
+  if (seconds.value === 0) {
+    minutes.value -= 1;
+    seconds.value = 59;
+  } else seconds.value -= 1;
 
-  const startTime = Date.now();
+  const startMinute = minutes.value;
+  let startSeconds = seconds.value;
 
   newTimer = setInterval(() => {
     const currentTime = Date.now();
@@ -124,17 +133,16 @@ function startTimer(callBack) {
     const updatedSeconds = timeDifference % 60;
     const updatedMinutes = Math.floor(timeDifference / 60);
 
-    // console.log(updatedSeconds, updatedMinutes);
-    if (updatedSeconds === 0) {
-      seconds.value = updatedSeconds;
+    if (seconds.value === 0 && startSeconds !== 59) {
+      clearInterval(newTimer);
+      startTimer(callBack);
+      return;
     } else {
-      if (props.duration - (updatedMinutes + 1) !== minutes.value)
-        minutes.value = props.duration - (updatedMinutes + 1);
-      seconds.value = 60 - updatedSeconds;
+      minutes.value = startMinute - updatedMinutes;
+      seconds.value = startSeconds - updatedSeconds;
     }
 
-    if (minutes.value === 0 && seconds.value === 0) {
-      // store.dispatch("addMoneyInWallet", pointsWorth.value);
+    if (minutes.value <= 0 && seconds.value <= 0) {
       if (callBack) callBack();
       timerStarted.value = false;
       minutes.value = props.duration;
@@ -172,15 +180,56 @@ function deleteReward() {
   playNotificationAudio();
 }
 
+function startTimerWithAction(action) {
+  if (props.cardType === "task")
+    startTimer(() => {
+      addMoneyInWallet();
+      if (action) action();
+    });
+  else if (props.cardType === "reward")
+    startTimer(() => {
+      deleteReward();
+      if (action) action();
+    });
+}
+
 function takeAction() {
   if (actionDisabled.value) return;
 
-  if (props.cardType === "task") startTimer(addMoneyInWallet);
-  else if (props.cardType === "shop") {
+  if (["task", "reward"].includes(props.cardType)) {
+    timerStarted.value = !timerStarted.value;
+
+    if (!timerStarted.value) {
+      stopTimer();
+      return;
+    }
+    startTimerWithAction();
+    return;
+  }
+  if (props.cardType === "shop") {
     spendMoneyFromWallet();
     addRewardInList();
-  } else if (props.cardType === "reward") startTimer(deleteReward);
+    return;
+  }
 }
+
+import { App } from "@capacitor/app";
+import { BackgroundTask } from "@capawesome/capacitor-background-task";
+
+App.addListener("appStateChange", (state) => {
+  if (!state.isActive) {
+    let taskId = BackgroundTask.beforeExit(() => {
+      if (timerStarted.value) pauseTimer();
+      function endBackgroundTask() {
+        BackgroundTask.finish({ taskId });
+      }
+      startTimerWithAction(endBackgroundTask);
+    });
+  } else {
+    pauseTimer();
+    startTimerWithAction();
+  }
+});
 </script>
 
 <style lang="scss" scoped>

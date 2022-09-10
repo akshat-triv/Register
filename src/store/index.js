@@ -8,9 +8,9 @@ export default createStore({
       workingHours: null,
     },
     valueOfOneMinute: null,
-    taskList: [],
-    shopList: [],
-    rewardList: [],
+    taskList: {},
+    shopList: {},
+    rewardList: {},
     wallet: 0,
   },
   getters: {
@@ -50,28 +50,32 @@ export default createStore({
       state.valueOfOneMinute = valueOfOneHour / 60;
     },
     addTaskInList(state, taskDetails) {
-      state.taskList = [...state.taskList, ...taskDetails];
+      state.taskList = { ...state.taskList, ...taskDetails };
       localStorage.setItem("taskList", JSON.stringify(state.taskList));
     },
-    deleteTaskInList(state, taskIndex) {
-      state.taskList.splice(taskIndex, 1);
+    deleteTaskInList(state, taskId) {
+      delete state.taskList[taskId];
       localStorage.setItem("taskList", JSON.stringify(state.taskList));
     },
     addShopInList(state, shopItemDetails) {
-      state.shopList = [...state.shopList, ...shopItemDetails];
+      state.shopList = { ...state.shopList, ...shopItemDetails };
       localStorage.setItem("shopList", JSON.stringify(state.shopList));
     },
-    deleteShopInList(state, shopItemIndex) {
-      state.shopList.splice(shopItemIndex, 1);
+    deleteShopInList(state, shopItemId) {
+      delete state.shopList[shopItemId];
       localStorage.setItem("shopList", JSON.stringify(state.shopList));
     },
     addRewardInList(state, rewardDetails) {
-      state.rewardList = [...state.rewardList, ...rewardDetails];
+      state.rewardList = { ...state.rewardList, ...rewardDetails };
       localStorage.setItem("rewardList", JSON.stringify(state.rewardList));
     },
-    deleteRewardInList(state, rewardIndex) {
-      state.rewardList.splice(rewardIndex, 1);
+    deleteRewardInList(state, rewardId) {
+      delete state.rewardList[rewardId];
       localStorage.setItem("rewardList", JSON.stringify(state.rewardList));
+    },
+    stopAndClearTimer(state, config) {
+      const newValue = !state[`${config.type}List`][config.id].active;
+      state[`${config.type}List`][config.id].active = newValue;
     },
   },
   actions: {
@@ -79,21 +83,18 @@ export default createStore({
       commit("updateUserDetails", userDetails);
     },
     addTaskInList({ commit }, taskDetails) {
-      if (!Array.isArray(taskDetails)) taskDetails = [taskDetails];
       commit("addTaskInList", taskDetails);
     },
     deleteTaskInList({ commit }, taskIndex) {
       commit("deleteTaskInList", taskIndex);
     },
     addShopInList({ commit }, shopItemDetails) {
-      if (!Array.isArray(shopItemDetails)) shopItemDetails = [shopItemDetails];
       commit("addShopInList", shopItemDetails);
     },
     deleteShopInList({ commit }, shopItemIndex) {
       commit("deleteShopInList", shopItemIndex);
     },
     addRewardInList({ commit }, rewardDetails) {
-      if (!Array.isArray(rewardDetails)) rewardDetails = [rewardDetails];
       commit("addRewardInList", rewardDetails);
     },
     deleteRewardInList({ commit }, rewardIndex) {
@@ -104,6 +105,9 @@ export default createStore({
     },
     spendMoneyFromWallet({ commit }, amount) {
       commit("spendMoneyFromWallet", amount);
+    },
+    stopAndClearTimer({ commit }, config) {
+      commit("stopAndClearTimer", config);
     },
   },
   modules: {},

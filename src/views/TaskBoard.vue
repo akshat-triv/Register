@@ -1,13 +1,15 @@
 <template>
   <div class="common-board">
     <common-card
-      v-for="(taskDetails, taskIndex) in taskList"
-      :key="`task-${taskIndex}`"
+      v-for="(taskDetails, taskId) in taskList"
+      :key="`task-${taskId}`"
+      :id="taskId"
       :card-type="'task'"
       :title="taskDetails.title"
       :description="taskDetails.description"
       :duration="taskDetails.duration"
-      @delete-item="deleteTask(taskIndex)"
+      :active="taskDetails.active"
+      @delete-item="deleteTask(taskId)"
     />
     <div
       class="add-button"
@@ -33,6 +35,7 @@
 </template>
 
 <script setup>
+import { v4 as uuidv4 } from "uuid";
 import { computed } from "@vue/reactivity";
 import { provide, ref } from "vue";
 import { useStore } from "vuex";
@@ -58,14 +61,22 @@ const taskList = computed({
 });
 
 function addTaskInList(taskDetails) {
-  taskList.value = taskDetails;
+  // Adding TaskId and Active Property in TaskDetails
+  const taskId = uuidv4();
+  taskDetails.id = taskId;
+  taskDetails.active = false;
+  // Preparing Task Obj
+  const taskObj = {};
+  taskObj[taskId] = taskDetails;
+  taskList.value = taskObj;
+  // Closing the model
   modelActive.value = false;
 }
 
-async function deleteTask(taskIndex) {
+async function deleteTask(taskId) {
   const userInput = await confirm.value.openConfirm();
   if (!userInput) return;
-  store.dispatch("deleteTaskInList", taskIndex);
+  store.dispatch("deleteTaskInList", taskId);
 }
 
 const addNewTaskMeta = [

@@ -39,10 +39,14 @@
 
 <script setup>
 import { ref } from "@vue/reactivity";
-import { computed, watch, inject } from "@vue/runtime-core";
+import { computed, watch, inject, toRefs } from "@vue/runtime-core";
 import { useStore } from "vuex";
 
 const props = defineProps({
+  id: {
+    type: String,
+    required: true,
+  },
   title: {
     type: String,
     default: "Title of the task",
@@ -59,9 +63,15 @@ const props = defineProps({
     type: String,
     default: "task",
   },
+  active: {
+    type: Boolean,
+    required: true,
+  },
 });
 
-const emit = defineEmits(["delete-item"]);
+const { active } = toRefs(props);
+
+const emit = defineEmits(["delete-item", "add-reward"]);
 
 const store = useStore();
 
@@ -148,52 +158,93 @@ function startTimer() {
   }, 1000);
 }
 
-function deleteReward() {
-  emit("delete-item");
-}
-
-function addMoneyInWallet() {
-  store.dispatch("addMoneyInWallet", pointsWorth.value);
-}
-
-function spendMoneyFromWallet() {
-  store.dispatch("spendMoneyFromWallet", pointsWorth.value);
-}
-
-function addRewardInList() {
-  store.dispatch("addRewardInList", {
-    title: props.title,
-    description: props.description,
-    duration: props.duration,
-  });
-}
-
-const scheduleNotification = inject("scheduleNotification");
-
-function executeEndActions() {
-  if (props.cardType === "task") addMoneyInWallet();
-  else if (props.cardType === "reward") deleteReward();
+watch(active, () => {
   timerStarted.value = false;
   minutes.value = props.duration;
   seconds.value = 0;
-  if (newTimer) clearInterval(newTimer);
-}
+  clearInterval(newTimer);
+});
+
+// function deleteReward() {
+//   emit("delete-item");
+// }
+
+// function addMoneyInWallet() {
+//   store.dispatch("addMoneyInWallet", pointsWorth.value);
+// }
+
+// function spendMoneyFromWallet() {
+//   store.dispatch("spendMoneyFromWallet", pointsWorth.value);
+// }
+
+const scheduleNotification = inject("scheduleNotification");
+
+// function executeEndActions() {
+//   if (props.cardType === "task") addMoneyInWallet();
+//   else if (props.cardType === "reward") deleteReward();
+//   timerStarted.value = false;
+//   minutes.value = props.duration;
+//   seconds.value = 0;
+//   if (newTimer) clearInterval(newTimer);
+// }
 
 function getNotificationObject() {
+  const currentTime = new Date().getTime();
+  const durationInMilliSeconds = parseInt(`${props.duration}`) * 60 * 1000;
+
+  const notificationObject = {
+    task: {
+      title: `Timer has ended for: ${props.title}`,
+      body: `${pointsWorth.value} coins got credited to your wallet`,
+      largeBody: `${pointsWorth.value} coins got credited to your wallet`,
+      schedule: {
+        at: new Date(currentTime + durationInMilliSeconds),
+        allowWhileIdle: true,
+      },
+      channelId: "transactions",
+      extra: {
+        points: pointsWorth.value,
+        action: "credit",
+        type: props.cardType,
+        id: props.id,
+      },
+    },
+    reward: {
+      title: `Timer has ended for: ${props.title}`,
+      body: "Your times up, I suggest you start another task, or buy and cash another reward.",
+      largeBody: `${pointsWorth.value} coins got credited to your wallet`,
+      schedule: {
+        at: new Date(currentTime + durationInMilliSeconds),
+        allowWhileIdle: true,
+      },
+      channelId: "general",
+      extra: {
+        action: "delete",
+        type: props.cardType,
+        id: props.id,
+      },
+    },
+    shop: {
+      title: `${pointsWorth.value} coins got debited for ${props.title}`,
+      body: "You can cash in this reward any time you want from the rewards section",
+      largeBody: `${pointsWorth.value} coins got credited to your wallet`,
+      schedule: {
+        at: new Date(currentTime),
+        allowWhileIdle: true,
+      },
+      channelId: "transactions",
+      extra: {
+        points: pointsWorth.value,
+        action: "debit",
+        type: props.cardType,
+        id: props.id,
+      },
+    },
+  };
+
   return {
     id: 1,
-    title: "Timer has ended",
-    body: "Money got credited to your wallet",
-    summaryText: "Transaction",
-    largeBody: "Money got credited to your wallet",
-    schedule: {
-      at: new Date(
-        new Date().getTime() + parseInt(`${props.duration}`) * 60 * 1000
-      ),
-      allowWhileIdle: true,
-    },
-    extra: { callBack: executeEndActions },
-    channelId: "transactions",
+    ...notificationObject[props.cardType],
   };
 }
 
@@ -212,14 +263,17 @@ function takeAction() {
     startTime.value = Date.now();
     //Start the timer
     startTimer();
-    //Scheduling the notification
-    scheduleNotification(getNotificationObject());
-
-    return;
   }
-  // If the control reaches here means this is a shop item card
-  spendMoneyFromWallet();
-  addRewardInList();
+
+  if (props.cardType === "shop")
+    emit("add-reward", {
+      title: props.title,
+      description: props.description,
+      duration: props.duration,
+    });
+
+  //Scheduling the notification
+  scheduleNotification(getNotificationObject());
 }
 </script>
 

@@ -84,7 +84,14 @@ async function scheduleNotification(notification) {
 }
 
 LocalNotifications.addListener("localNotificationReceived", (notification) => {
-  notification.extra.callBack();
+  const { points, action, type, id } = notification.extra;
+
+  if (action === "debit") store.dispatch("spendMoneyFromWallet", points);
+  else if (action === "credit") store.dispatch("addMoneyInWallet", points);
+  else if (action === "delete" && type === "reward")
+    store.dispatch("deleteRewardInList", id);
+
+  store.dispatch("stopAndClearTimer", { type, id });
 });
 
 provide("scheduleNotification", scheduleNotification);

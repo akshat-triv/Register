@@ -1,13 +1,15 @@
 <template>
   <div class="common-board">
     <common-card
-      v-for="(rewardDetails, rewardIndex) in rewardList"
-      :key="`reward-${rewardIndex}`"
+      v-for="(rewardDetails, rewardId) in rewardList"
+      :key="`reward-${rewardId}`"
+      :id="rewardId"
       :card-type="'reward'"
       :title="rewardDetails.title"
       :description="rewardDetails.description"
       :duration="rewardDetails.duration"
-      @delete-item="deleteReward(rewardIndex)"
+      :active="rewardDetails.active"
+      @delete-item="deleteReward(rewardId)"
     />
     <div class="add-button disabled">+</div>
     <teleport to="#app">
@@ -32,7 +34,7 @@ const store = useStore();
 
 const rewardList = computed(() => store.getters["getRewardList"]);
 
-async function deleteReward(rewardIndex) {
-  store.dispatch("deleteRewardInList", rewardIndex);
+async function deleteReward(rewardId) {
+  store.dispatch("deleteRewardInList", rewardId);
 }
 </script>

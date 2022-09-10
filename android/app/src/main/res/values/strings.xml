@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Register</string>
+    <string name="title_activity_main">Register</string>
+    <string name="package_name">com.register.app</string>
+    <string name="custom_url_scheme">com.register.app</string>
+</resources>

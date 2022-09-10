@@ -106,19 +106,16 @@ const displayMinutes = computed(() => {
 
 let newTimer;
 
+const startTime = ref(null);
+
 function stopTimer() {
+  clearInterval(newTimer);
   minutes.value = props.duration;
   seconds.value = 0;
-  clearInterval(newTimer);
+  startTime.value = null;
 }
 
-function pauseTimer() {
-  clearInterval(newTimer);
-}
-
-function startTimer(callBack) {
-  let startTime = Date.now();
-
+function startTimer() {
   if (seconds.value === 0) {
     minutes.value -= 1;
     seconds.value = 59;
@@ -129,42 +126,38 @@ function startTimer(callBack) {
 
   newTimer = setInterval(() => {
     const currentTime = Date.now();
-    const timeDifference = parseInt((currentTime - startTime) / 1000);
+    const timeDifference = parseInt((currentTime - startTime.value) / 1000);
     const updatedSeconds = timeDifference % 60;
     const updatedMinutes = Math.floor(timeDifference / 60);
 
     if (seconds.value === 0 && startSeconds !== 59) {
       clearInterval(newTimer);
-      startTimer(callBack);
+      startTimer();
       return;
     } else {
       minutes.value = startMinute - updatedMinutes;
       seconds.value = startSeconds - updatedSeconds;
     }
 
-    if (minutes.value <= 0 && seconds.value <= 0) {
-      if (callBack) callBack();
+    if (minutes.value < 0 || (minutes.value <= 0 && seconds.value <= 0)) {
       timerStarted.value = false;
       minutes.value = props.duration;
+      seconds.value = 0;
       clearInterval(newTimer);
     }
   }, 1000);
 }
 
-function playNotificationAudio(type = "notification") {
-  const audioFile = type === "money" ? "cash_register" : "notification_sound";
-  const audio = new Audio(require(`@/assets/${audioFile}.mp3`));
-  audio.play();
+function deleteReward() {
+  emit("delete-item");
 }
 
 function addMoneyInWallet() {
   store.dispatch("addMoneyInWallet", pointsWorth.value);
-  playNotificationAudio("money");
 }
 
 function spendMoneyFromWallet() {
   store.dispatch("spendMoneyFromWallet", pointsWorth.value);
-  playNotificationAudio("money");
 }
 
 function addRewardInList() {
@@ -175,22 +168,33 @@ function addRewardInList() {
   });
 }
 
-function deleteReward() {
-  emit("delete-item");
-  playNotificationAudio();
+const scheduleNotification = inject("scheduleNotification");
+
+function executeEndActions() {
+  if (props.cardType === "task") addMoneyInWallet();
+  else if (props.cardType === "reward") deleteReward();
+  timerStarted.value = false;
+  minutes.value = props.duration;
+  seconds.value = 0;
+  if (newTimer) clearInterval(newTimer);
 }
 
-function startTimerWithAction(action) {
-  if (props.cardType === "task")
-    startTimer(() => {
-      addMoneyInWallet();
-      if (action) action();
-    });
-  else if (props.cardType === "reward")
-    startTimer(() => {
-      deleteReward();
-      if (action) action();
-    });
+function getNotificationObject() {
+  return {
+    id: 1,
+    title: "Timer has ended",
+    body: "Money got credited to your wallet",
+    summaryText: "Transaction",
+    largeBody: "Money got credited to your wallet",
+    schedule: {
+      at: new Date(
+        new Date().getTime() + parseInt(`${props.duration}`) * 60 * 1000
+      ),
+      allowWhileIdle: true,
+    },
+    extra: { callBack: executeEndActions },
+    channelId: "transactions",
+  };
 }
 
 function takeAction() {
@@ -199,41 +203,24 @@ function takeAction() {
   if (["task", "reward"].includes(props.cardType)) {
     timerStarted.value = !timerStarted.value;
 
+    // Stopping the timer if stop button is clicked
     if (!timerStarted.value) {
       stopTimer();
       return;
     }
-    startTimerWithAction();
+    //Set starting time
+    startTime.value = Date.now();
+    //Start the timer
+    startTimer();
+    //Scheduling the notification
+    scheduleNotification(getNotificationObject());
+
     return;
   }
-  if (props.cardType === "shop") {
-    spendMoneyFromWallet();
-    addRewardInList();
-    return;
-  }
+  // If the control reaches here means this is a shop item card
+  spendMoneyFromWallet();
+  addRewardInList();
 }
-
-import { App } from "@capacitor/app";
-import { BackgroundTask } from "@capawesome/capacitor-background-task";
-
-App.addListener("appStateChange", (state) => {
-  if (!state.isActive) {
-    let taskId = BackgroundTask.beforeExit(() => {
-      function endBackgroundTask() {
-        BackgroundTask.finish({ taskId });
-      }
-      if (timerStarted.value) {
-        pauseTimer();
-        startTimerWithAction(endBackgroundTask);
-      } else endBackgroundTask();
-    });
-  } else {
-    if (timerStarted.value) {
-      pauseTimer();
-      startTimerWithAction();
-    }
-  }
-});
 </script>
 
 <style lang="scss" scoped>

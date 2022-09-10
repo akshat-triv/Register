@@ -2,5 +2,12 @@
   "appId": "com.register.app",
   "appName": "Register",
   "webDir": "dist",
-  "bundledWebRuntime": false
+  "bundledWebRuntime": false,
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "register_notification",
+      "iconColor": "#3e4152",
+      "largeIcon": "register_notification"
+    }
+  }
 }

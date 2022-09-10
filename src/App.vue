@@ -13,26 +13,84 @@ import GlobalNavigation from "./components/GlobalNavigation.vue";
 import GlobalHeader from "./components/GlobalHeader.vue";
 import QuestionModal from "./components/QuestionModal.vue";
 
-import { onMounted, ref } from "vue";
+import { onMounted, provide, ref } from "vue";
 import { useStore } from "vuex";
+import { LocalNotifications } from "@capacitor/local-notifications";
 
 const userDetailsModal = ref(false);
 const store = useStore();
 
-onMounted(() => {
+function loadFromLocalStorage() {
+  if (!localStorage) return;
+
   const savedUserDetails = localStorage.getItem("userDetails");
-  const savedTaskList = localStorage.getItem("taskList");
-  const savedShopList = localStorage.getItem("shopList");
-  const savedRewardList = localStorage.getItem("rewardList");
-  const savedWalletMoney = localStorage.getItem("wallet");
+
   if (!savedUserDetails) userDetailsModal.value = true;
   else store.dispatch("updateUserDetails", JSON.parse(savedUserDetails));
+
+  const savedTaskList = localStorage.getItem("taskList");
+
   if (savedTaskList) store.dispatch("addTaskInList", JSON.parse(savedTaskList));
+
+  const savedShopList = localStorage.getItem("shopList");
+
   if (savedShopList) store.dispatch("addShopInList", JSON.parse(savedShopList));
+
+  const savedRewardList = localStorage.getItem("rewardList");
+
   if (savedRewardList)
     store.dispatch("addRewardInList", JSON.parse(savedRewardList));
+
+  const savedWalletMoney = localStorage.getItem("wallet");
+
   if (savedWalletMoney)
     store.dispatch("addMoneyInWallet", parseFloat(savedWalletMoney));
+}
+
+LocalNotifications.createChannel({
+  id: "transactions",
+  name: "transactions",
+  sound: "cash_register.mp3",
+  visibility: 1,
+  lights: true,
+  vibration: true,
+})
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
+LocalNotifications.createChannel({
+  id: "general",
+  name: "general",
+  sound: "notification_sound.mp3",
+  visibility: 1,
+  lights: true,
+  vibration: true,
+})
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
+async function scheduleNotification(notification) {
+  await LocalNotifications.schedule({
+    notifications: [notification],
+  });
+}
+
+LocalNotifications.addListener("localNotificationReceived", (notification) => {
+  notification.extra.callBack();
+});
+
+provide("scheduleNotification", scheduleNotification);
+
+onMounted(async () => {
+  loadFromLocalStorage();
 });
 </script>
 

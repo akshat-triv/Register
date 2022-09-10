@@ -1,4 +1,4 @@
-# Register - A Digitalwellbeing Application
+# Register - A Digital Wellbeing Application
 
 #### Proper Readme coming soon.
 

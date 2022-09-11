@@ -74,6 +74,7 @@ export default createStore({
       localStorage.setItem("rewardList", JSON.stringify(state.rewardList));
     },
     stopAndClearTimer(state, config) {
+      if (!config.type || !config.id) return;
       const newValue = !state[`${config.type}List`][config.id].active;
       state[`${config.type}List`][config.id].active = newValue;
     },

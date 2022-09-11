@@ -92,8 +92,10 @@ LocalNotifications.addListener("localNotificationReceived", (notification) => {
 
   store.dispatch("stopAndClearTimer", { type, id });
 
-  if (action === "delete" && type === "reward")
+  if (action === "delete" && type === "reward") {
+    store.dispatch("updateRewardTimer", false);
     store.dispatch("deleteRewardInList", id);
+  }
 });
 
 provide("scheduleNotification", scheduleNotification);

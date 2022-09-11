@@ -11,6 +11,7 @@ export default createStore({
     taskList: {},
     shopList: {},
     rewardList: {},
+    rewardTimer: false,
     wallet: 0,
   },
   getters: {
@@ -31,6 +32,9 @@ export default createStore({
     },
     getRewardList(state) {
       return state.rewardList;
+    },
+    getRewardTimer(state) {
+      return state.rewardTimer;
     },
   },
   mutations: {
@@ -69,6 +73,9 @@ export default createStore({
       state.rewardList = { ...state.rewardList, ...rewardDetails };
       localStorage.setItem("rewardList", JSON.stringify(state.rewardList));
     },
+    updateRewardTimer(state, isActive) {
+      state.rewardTimer = isActive;
+    },
     deleteRewardInList(state, rewardId) {
       delete state.rewardList[rewardId];
       localStorage.setItem("rewardList", JSON.stringify(state.rewardList));
@@ -97,6 +104,9 @@ export default createStore({
     },
     addRewardInList({ commit }, rewardDetails) {
       commit("addRewardInList", rewardDetails);
+    },
+    updateRewardTimer({ commit }, isActive) {
+      commit("updateRewardTimer", isActive);
     },
     deleteRewardInList({ commit }, rewardIndex) {
       commit("deleteRewardInList", rewardIndex);

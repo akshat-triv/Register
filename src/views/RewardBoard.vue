@@ -33,7 +33,15 @@ import ConfirmModal from "../components/ConfirmModal.vue";
 import AlertModal from "../components/AlertModal.vue";
 import { onBeforeRouteLeave } from "vue-router";
 
-const timerIsActive = ref(false);
+const timerIsActive = computed({
+  get() {
+    return store.getters["getRewardTimer"];
+  },
+  set(value) {
+    store.dispatch("updateRewardTimer", value);
+  },
+});
+
 provide("timer-active", timerIsActive);
 
 const confirm = ref(null);

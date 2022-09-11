@@ -54,6 +54,8 @@ defineExpose({ openAlert });
     font-size: 1.4rem;
     font-weight: 800;
     margin-bottom: 2rem;
+    display: inline-block;
+    text-align: left;
   }
 }
 

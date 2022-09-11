@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import TaskBoard from "../views/TaskBoard.vue";
 import ShopBoard from "../views/ShopBoard.vue";
 import RewardBoard from "../views/RewardBoard.vue";
-import About from "../views/About.vue";
+import Settings from "../views/Settings.vue";
 
 const routes = [
   {
@@ -23,7 +23,7 @@ const routes = [
   {
     path: "/settings",
     name: "Settings",
-    component: About,
+    component: Settings,
   },
   // {
   //   path: "/about",

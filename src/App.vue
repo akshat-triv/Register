@@ -1,6 +1,6 @@
 <template>
   <global-header />
-  <global-navigation />
+  <global-navigation :about-page-active="route.name === 'Settings'" />
   <router-view />
   <question-modal
     :is-visible="userDetailsModal"
@@ -16,9 +16,12 @@ import QuestionModal from "./components/QuestionModal.vue";
 import { onMounted, provide, ref } from "vue";
 import { useStore } from "vuex";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { useRoute } from "vue-router";
 
 const userDetailsModal = ref(false);
 const store = useStore();
+
+const route = useRoute();
 
 function loadFromLocalStorage() {
   if (!localStorage) return;

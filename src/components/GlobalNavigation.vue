@@ -1,54 +1,79 @@
 <template>
   <div class="nav">
-    <router-link to="/">
-      <div class="nav-item">
-        <inline-svg
-          :src="require('@/assets/todo.svg')"
-          class="nav-item-icon"
-          title=""
-        ></inline-svg>
-        <span class="nav-item-text">To-do</span>
-      </div>
-    </router-link>
-    <router-link to="/shop">
-      <div class="nav-item">
-        <inline-svg
-          :src="require('@/assets/shopping-cart.svg')"
-          class="nav-item-icon"
-          title=""
-        ></inline-svg>
-        <span class="nav-item-text">Shop</span>
-      </div>
-    </router-link>
-    <span class="empty-space"></span>
-    <router-link to="/rewards">
-      <div class="nav-item">
-        <inline-svg
-          :src="require('@/assets/rewards.svg')"
-          class="nav-item-icon"
-          title=""
-        ></inline-svg>
-        <span class="nav-item-text">Rewards</span>
-      </div>
-    </router-link>
-    <router-link to="/settings">
-      <div class="nav-item">
-        <inline-svg
-          :src="require('@/assets/settings.svg')"
-          class="nav-item-icon"
-          title=""
-        ></inline-svg>
-        <span class="nav-item-text">Settings</span>
-      </div>
-    </router-link>
+    <transition-group name="fade-collapse">
+      <router-link to="/">
+        <div class="nav-item">
+          <inline-svg
+            :src="require('@/assets/todo.svg')"
+            class="nav-item-icon"
+            title=""
+          ></inline-svg>
+          <span class="nav-item-text">To-do</span>
+        </div>
+      </router-link>
+      <router-link to="/shop">
+        <div class="nav-item">
+          <inline-svg
+            :src="require('@/assets/shopping-cart.svg')"
+            class="nav-item-icon"
+            title=""
+          ></inline-svg>
+          <span class="nav-item-text">Shop</span>
+        </div>
+      </router-link>
+      <span v-if="!props.aboutPageActive" class="empty-space"></span>
+      <router-link to="/rewards">
+        <div class="nav-item">
+          <inline-svg
+            :src="require('@/assets/rewards.svg')"
+            class="nav-item-icon"
+            title=""
+          ></inline-svg>
+          <span class="nav-item-text">Rewards</span>
+        </div>
+      </router-link>
+      <router-link to="/settings">
+        <div class="nav-item">
+          <inline-svg
+            :src="require('@/assets/settings.svg')"
+            class="nav-item-icon"
+            title=""
+          ></inline-svg>
+          <span class="nav-item-text">Settings</span>
+        </div>
+      </router-link>
+    </transition-group>
   </div>
 </template>
 
-<script>
-export default {
-  name: "GlobalNavigation",
-};
+<script setup>
+const props = defineProps({
+  aboutPageActive: {
+    type: Boolean,
+    default: false,
+  },
+});
 </script>
+
+<style lang="scss">
+.fade-collapse-enter-active,
+.fade-collapse-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-collapse-leave-active {
+  position: absolute;
+}
+
+.fade-collapse-move {
+  transition: transform 0.3s ease;
+}
+
+.fade-collapse-enter-from,
+.fade-collapse-leave-to {
+  opacity: 0;
+}
+</style>
 
 <style lang="scss" scoped>
 .nav {
@@ -63,6 +88,7 @@ export default {
   bottom: 0;
   left: 0;
   z-index: 2;
+  transition: all 0.3s;
 
   & > * {
     flex: 0 0 22%;

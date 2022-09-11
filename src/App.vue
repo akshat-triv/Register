@@ -84,14 +84,16 @@ async function scheduleNotification(notification) {
 }
 
 LocalNotifications.addListener("localNotificationReceived", (notification) => {
+  if (!notification.extra) return;
+
   const { points, action, type, id } = notification.extra;
 
-  if (action === "debit") store.dispatch("spendMoneyFromWallet", points);
-  else if (action === "credit") store.dispatch("addMoneyInWallet", points);
-  else if (action === "delete" && type === "reward")
-    store.dispatch("deleteRewardInList", id);
+  if (action === "credit") store.dispatch("addMoneyInWallet", points);
 
   store.dispatch("stopAndClearTimer", { type, id });
+
+  if (action === "delete" && type === "reward")
+    store.dispatch("deleteRewardInList", id);
 });
 
 provide("scheduleNotification", scheduleNotification);
@@ -144,6 +146,7 @@ html {
 .btn {
   padding: 0.8rem 2.4rem;
   font-size: 1.4rem;
+  text-decoration: none;
   border: 1px solid var(--surface-bg-color-2);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border-radius: 4px;
@@ -158,6 +161,10 @@ html {
     border: none;
     border-radius: 4px;
     transition: all 0.3s;
+
+    &:active {
+      background-color: var(--primary-color-2);
+    }
   }
 
   &.disabled {
@@ -170,6 +177,7 @@ html {
 
 .add-button {
   color: var(--text-color-dark);
+  text-decoration: none;
   background-color: var(--primary-color-1);
   width: 5rem;
   height: 5rem;
@@ -195,6 +203,10 @@ html {
     &:hover {
       cursor: not-allowed;
     }
+  }
+
+  &:active {
+    background-color: var(--primary-color-2);
   }
 }
 

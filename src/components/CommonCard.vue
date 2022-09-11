@@ -19,13 +19,14 @@
         <img class="points-icon" src="@/assets/gold-coin.png" alt="gold-coin" />
         <span class="points-text">{{ pointsWorth }}</span>
       </div>
-      <div
+      <a
+        href="#"
         class="btn btn-primary"
         :class="{ disabled: actionDisabled }"
         @click="takeAction"
       >
         {{ primaryBtnText }}
-      </div>
+      </a>
       <inline-svg
         v-if="props.cardType !== 'reward'"
         :src="require('@/assets/trash.svg')"
@@ -189,7 +190,6 @@ const scheduleNotification = inject("scheduleNotification");
 // }
 
 function getNotificationObject() {
-  const currentTime = new Date().getTime();
   const durationInMilliSeconds = parseInt(`${props.duration}`) * 60 * 1000;
 
   const notificationObject = {
@@ -198,7 +198,7 @@ function getNotificationObject() {
       body: `${pointsWorth.value} coins got credited to your wallet`,
       largeBody: `${pointsWorth.value} coins got credited to your wallet`,
       schedule: {
-        at: new Date(currentTime + durationInMilliSeconds),
+        at: new Date(startTime.value + durationInMilliSeconds),
         allowWhileIdle: true,
       },
       channelId: "transactions",
@@ -211,10 +211,11 @@ function getNotificationObject() {
     },
     reward: {
       title: `Timer has ended for: ${props.title}`,
-      body: "Your times up, I suggest you start another task, or buy and cash another reward.",
-      largeBody: `${pointsWorth.value} coins got credited to your wallet`,
+      body: "I suggest you start another task, or buy and cash another reward.",
+      largeBody:
+        "Your times up, I suggest you start another task, or buy and cash another reward.",
       schedule: {
-        at: new Date(currentTime + durationInMilliSeconds),
+        at: new Date(startTime.value + durationInMilliSeconds),
         allowWhileIdle: true,
       },
       channelId: "general",
@@ -228,17 +229,7 @@ function getNotificationObject() {
       title: `${pointsWorth.value} coins got debited for ${props.title}`,
       body: "You can cash in this reward any time you want from the rewards section",
       largeBody: `${pointsWorth.value} coins got credited to your wallet`,
-      schedule: {
-        at: new Date(currentTime),
-        allowWhileIdle: true,
-      },
       channelId: "transactions",
-      extra: {
-        points: pointsWorth.value,
-        action: "debit",
-        type: props.cardType,
-        id: props.id,
-      },
     },
   };
 
@@ -265,12 +256,14 @@ function takeAction() {
     startTimer();
   }
 
-  if (props.cardType === "shop")
+  if (props.cardType === "shop") {
     emit("add-reward", {
       title: props.title,
       description: props.description,
       duration: props.duration,
     });
+    store.dispatch("spendMoneyFromWallet", pointsWorth.value);
+  }
 
   //Scheduling the notification
   scheduleNotification(getNotificationObject());

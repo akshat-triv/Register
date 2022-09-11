@@ -11,13 +11,14 @@
       :active="taskDetails.active"
       @delete-item="deleteTask(taskId)"
     />
-    <div
+    <a
+      href="#"
       class="add-button"
       :class="{ close: modelActive }"
       @click="modelActive = !modelActive"
     >
       +
-    </div>
+    </a>
     <teleport to="#app">
       <new-task-modal
         :is-visible="modelActive"
@@ -31,6 +32,12 @@
         :confirm-message="'Are you sure you want to delete the task?'"
       />
     </teleport>
+    <teleport to="#app">
+      <alert-modal
+        ref="routeLeaveAlert"
+        :alert-message="'Sorry you cannot leave this page while a task is active'"
+      />
+    </teleport>
   </div>
 </template>
 
@@ -42,6 +49,8 @@ import { useStore } from "vuex";
 import CommonCard from "../components/CommonCard.vue";
 import NewTaskModal from "../components/AddNewModal.vue";
 import ConfirmModal from "../components/ConfirmModal.vue";
+import AlertModal from "../components/AlertModal.vue";
+import { onBeforeRouteLeave } from "vue-router";
 
 const timerIsActive = ref(false);
 provide("timer-active", timerIsActive);
@@ -78,6 +87,14 @@ async function deleteTask(taskId) {
   if (!userInput) return;
   store.dispatch("deleteTaskInList", taskId);
 }
+
+const routeLeaveAlert = ref(null);
+
+onBeforeRouteLeave(async () => {
+  if (!timerIsActive.value) return true;
+  await routeLeaveAlert.value.openAlert();
+  return false;
+});
 
 const addNewTaskMeta = [
   {

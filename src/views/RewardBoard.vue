@@ -15,6 +15,12 @@
     <teleport to="#app">
       <confirm-modal ref="confirm" />
     </teleport>
+    <teleport to="#app">
+      <alert-modal
+        ref="routeLeaveAlert"
+        :alert-message="'Sorry you cannot leave this page while a task is active'"
+      />
+    </teleport>
   </div>
 </template>
 
@@ -24,6 +30,8 @@ import { provide, ref } from "vue";
 import { useStore } from "vuex";
 import CommonCard from "../components/CommonCard.vue";
 import ConfirmModal from "../components/ConfirmModal.vue";
+import AlertModal from "../components/AlertModal.vue";
+import { onBeforeRouteLeave } from "vue-router";
 
 const timerIsActive = ref(false);
 provide("timer-active", timerIsActive);
@@ -37,4 +45,12 @@ const rewardList = computed(() => store.getters["getRewardList"]);
 async function deleteReward(rewardId) {
   store.dispatch("deleteRewardInList", rewardId);
 }
+
+const routeLeaveAlert = ref(null);
+
+onBeforeRouteLeave(async () => {
+  if (!timerIsActive.value) return true;
+  await routeLeaveAlert.value.openAlert();
+  return false;
+});
 </script>

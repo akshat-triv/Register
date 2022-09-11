@@ -11,13 +11,14 @@
       @delete-item="deleteShopItem(shopItemId)"
       @add-reward="addShopItemInRewardList"
     />
-    <div
+    <a
+      href="#"
       class="add-button"
       :class="{ close: modelActive }"
       @click="modelActive = !modelActive"
     >
       +
-    </div>
+    </a>
     <teleport to="#app">
       <new-shop-item-modal
         :is-visible="modelActive"

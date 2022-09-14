@@ -4,13 +4,16 @@ import router from "./router";
 import store from "./store";
 
 import InlineSvg from "vue-inline-svg";
+import { Capacitor } from "@capacitor/core";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { NavigationBar } from "@hugotomazi/capacitor-navigation-bar";
 
-StatusBar.setStyle({ style: Style.Dark });
-StatusBar.setBackgroundColor({ color: "#0c1634" });
+if (Capacitor.getPlatform() !== "web") {
+  StatusBar.setStyle({ style: Style.Dark });
+  StatusBar.setBackgroundColor({ color: "#0c1634" });
 
-NavigationBar.setColor({ color: "#0c1634" });
+  NavigationBar.setColor({ color: "#0c1634" });
+}
 
 const Vue = createApp(App);
 

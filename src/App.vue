@@ -17,6 +17,7 @@ import { onMounted, provide, ref } from "vue";
 import { useStore } from "vuex";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { useRoute } from "vue-router";
+import { Capacitor } from "@capacitor/core";
 
 const userDetailsModal = ref(false);
 const store = useStore();
@@ -50,58 +51,69 @@ function loadFromLocalStorage() {
     store.dispatch("addMoneyInWallet", parseFloat(savedWalletMoney));
 }
 
-LocalNotifications.createChannel({
-  id: "transactions",
-  name: "transactions",
-  sound: "cash_register.mp3",
-  visibility: 1,
-  lights: true,
-  vibration: true,
-})
-  .then((res) => {
-    console.log(res);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+const appPlatform = Capacitor.getPlatform();
 
-LocalNotifications.createChannel({
-  id: "general",
-  name: "general",
-  sound: "notification_sound.mp3",
-  visibility: 1,
-  lights: true,
-  vibration: true,
-})
-  .then((res) => {
-    console.log(res);
+provide("app-platform", appPlatform);
+
+if (appPlatform !== "web") {
+  LocalNotifications.createChannel({
+    id: "transactions",
+    name: "transactions",
+    sound: "cash_register.mp3",
+    visibility: 1,
+    lights: true,
+    vibration: true,
   })
-  .catch((err) => {
-    console.log(err);
-  });
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
+  LocalNotifications.createChannel({
+    id: "general",
+    name: "general",
+    sound: "notification_sound.mp3",
+    visibility: 1,
+    lights: true,
+    vibration: true,
+  })
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
+  LocalNotifications.addListener(
+    "localNotificationReceived",
+    (notification) => {
+      if (!notification.extra) return;
+
+      const { points, action, type, id } = notification.extra;
+
+      if (action === "credit") store.dispatch("addMoneyInWallet", points);
+
+      store.dispatch("stopAndClearTimer", { type, id });
+
+      if (action === "delete" && type === "reward") {
+        store.dispatch("updateRewardTimer", false);
+        store.dispatch("deleteRewardInList", id);
+      }
+    }
+  );
+}
 
 async function scheduleNotification(notification) {
+  if (appPlatform === "web") return;
+
   await LocalNotifications.schedule({
     notifications: [notification],
   });
 }
 
-LocalNotifications.addListener("localNotificationReceived", (notification) => {
-  if (!notification.extra) return;
-
-  const { points, action, type, id } = notification.extra;
-
-  if (action === "credit") store.dispatch("addMoneyInWallet", points);
-
-  store.dispatch("stopAndClearTimer", { type, id });
-
-  if (action === "delete" && type === "reward") {
-    store.dispatch("updateRewardTimer", false);
-    store.dispatch("deleteRewardInList", id);
-  }
-});
-
-provide("scheduleNotification", scheduleNotification);
+provide("schedule-notification", scheduleNotification);
 
 onMounted(async () => {
   loadFromLocalStorage();

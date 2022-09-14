@@ -115,6 +115,8 @@ const displayMinutes = computed(() => {
   else return minutes.value;
 });
 
+const appPlatform = inject("app-platform");
+
 let newTimer;
 
 const startTime = ref(null);
@@ -151,6 +153,7 @@ function startTimer() {
     }
 
     if (minutes.value < 0 || (minutes.value <= 0 && seconds.value <= 0)) {
+      if (appPlatform === "web") executeEndActions();
       timerStarted.value = false;
       minutes.value = props.duration;
       seconds.value = 0;
@@ -166,28 +169,39 @@ watch(active, () => {
   clearInterval(newTimer);
 });
 
-// function deleteReward() {
-//   emit("delete-item");
-// }
+function deleteReward() {
+  emit("delete-item");
+}
 
-// function addMoneyInWallet() {
-//   store.dispatch("addMoneyInWallet", pointsWorth.value);
-// }
+function addMoneyInWallet() {
+  store.dispatch("addMoneyInWallet", pointsWorth.value);
+}
 
-// function spendMoneyFromWallet() {
-//   store.dispatch("spendMoneyFromWallet", pointsWorth.value);
-// }
+function addRewardAndSpendMoneyFromWallet() {
+  emit("add-reward", {
+    title: props.title,
+    description: props.description,
+    duration: props.duration,
+  });
+  store.dispatch("spendMoneyFromWallet", pointsWorth.value);
+  if (appPlatform === "web") playNotificationAudio(props.cardType);
+}
 
-const scheduleNotification = inject("scheduleNotification");
+function playNotificationAudio(cardType) {
+  const audioFile = ["task", "shop"].includes(cardType)
+    ? "cash_register"
+    : "notification_sound";
+  const audio = new Audio(require(`@/assets/${audioFile}.mp3`));
+  audio.play();
+}
 
-// function executeEndActions() {
-//   if (props.cardType === "task") addMoneyInWallet();
-//   else if (props.cardType === "reward") deleteReward();
-//   timerStarted.value = false;
-//   minutes.value = props.duration;
-//   seconds.value = 0;
-//   if (newTimer) clearInterval(newTimer);
-// }
+function executeEndActions() {
+  if (props.cardType === "task") addMoneyInWallet();
+  else if (props.cardType === "reward") deleteReward();
+  playNotificationAudio(props.cardType);
+}
+
+const scheduleNotification = inject("schedule-notification");
 
 function getNotificationObject() {
   const durationInMilliSeconds = parseInt(`${props.duration}`) * 60 * 1000;
@@ -256,14 +270,7 @@ function takeAction() {
     startTimer();
   }
 
-  if (props.cardType === "shop") {
-    emit("add-reward", {
-      title: props.title,
-      description: props.description,
-      duration: props.duration,
-    });
-    store.dispatch("spendMoneyFromWallet", pointsWorth.value);
-  }
+  if (props.cardType === "shop") addRewardAndSpendMoneyFromWallet();
 
   //Scheduling the notification
   scheduleNotification(getNotificationObject());

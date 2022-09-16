@@ -89,7 +89,9 @@ const addBtnDisabled = computed(() => {
 
 function addNewItemInList() {
   if (addBtnDisabled.value) return;
-  emit("add-new", { ...newItemDetails });
+  const newItem = { ...newItemDetails };
+  newItem.duration = `${newItem.duration}:00`;
+  emit("add-new", newItem);
   // Setting inputs to null
   newItemDetails.title = null;
   newItemDetails.description = null;

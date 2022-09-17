@@ -91,8 +91,11 @@ h3 {
 }
 
 .social-wrapper {
+  margin: 0 auto;
   margin-bottom: auto;
   padding: 2rem 2rem 3rem;
+  max-width: 32rem;
+  width: 100%;
 
   &-row {
     display: flex;
@@ -100,7 +103,7 @@ h3 {
     justify-content: space-between;
 
     &:not(:last-child) {
-      margin-bottom: 2rem;
+      margin-bottom: 2.4rem;
     }
   }
 

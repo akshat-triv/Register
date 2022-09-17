@@ -9,3 +9,96 @@
   flex-direction: column;
   padding-bottom: 5.2rem;
 }
+
+.btn {
+  padding: 0.8rem 2.4rem;
+  font-size: 1.4rem;
+  text-decoration: none;
+  // border: 1px solid var(--surface-bg-color-2);
+  background-color: var(--surface-bg-color-1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  color: var(--text-color);
+  border: 1px solid var(--input-bg-color);
+  &:not(:last-of-type) {
+    margin-right: 2rem;
+  }
+  &:hover {
+    cursor: pointer;
+  }
+  &.btn-primary {
+    background-color: var(--primary-color-1);
+    color: var(--text-color-dark);
+    border: none;
+    border-radius: 4px;
+    transition: all 0.3s;
+    &:active {
+      background-color: var(--primary-color-2);
+    }
+    &.disabled {
+      background-color: var(--primary-color-1-disabled);
+      &:hover {
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+.add-button {
+  color: var(--text-color-dark);
+  text-decoration: none;
+  background-color: var(--primary-color-1);
+  width: 5rem;
+  height: 5rem;
+  clip-path: circle(50%);
+  font-size: 3.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  box-shadow: 2px 1px 20px 1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+  &.close {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  &.disabled {
+    background-color: var(--primary-color-1-disabled);
+    &:hover {
+      cursor: not-allowed;
+    }
+  }
+  &:active {
+    background-color: var(--primary-color-2);
+  }
+}
+.common-board {
+  padding: 2.4rem 2rem;
+  flex: 1;
+  overflow: auto;
+  & > *:not(:last-of-type) {
+    margin-bottom: 2rem;
+  }
+}
+.modal-input {
+  width: 100%;
+  font-size: 1.4rem;
+  outline: none;
+  border: none;
+  background-color: var(--input-bg-color);
+  padding: 1rem;
+  border-radius: 4px;
+  &:not(:last-child) {
+    margin-bottom: 2.4rem;
+  }
+  &-number {
+    width: 10rem;
+  }
+  &-label {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+  }
+}

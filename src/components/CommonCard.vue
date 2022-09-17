@@ -57,8 +57,8 @@ const props = defineProps({
     default: "Description of the task",
   },
   duration: {
-    type: Number,
-    default: 1,
+    type: String,
+    default: "01:00",
   },
   cardType: {
     type: String,
@@ -78,12 +78,23 @@ const store = useStore();
 
 const wallet = computed(() => store.getters["getWallet"]);
 
-const minutes = ref(props.duration);
-const seconds = ref(0);
+const initialMinutes = computed(() => {
+  return parseInt(props.duration.split(":")[0]);
+});
+const initialSeconds = computed(() => {
+  return parseInt(props.duration.split(":")[1]);
+});
+
+const minutes = ref(parseInt(props.duration.split(":")[0]));
+const seconds = ref(parseInt(props.duration.split(":")[1]));
+
+function calculatePoints(minutes) {
+  const valueOfOneMinute = store.getters["getValueOfOneMinute"];
+  return parseFloat(valueOfOneMinute * minutes).toFixed(2);
+}
 
 const pointsWorth = computed(() => {
-  const valueOfOneMinute = store.getters["getValueOfOneMinute"];
-  return parseFloat(valueOfOneMinute * props.duration).toFixed(2);
+  return calculatePoints(initialMinutes.value);
 });
 
 const timerActive = inject("timer-active");
@@ -121,11 +132,44 @@ let newTimer;
 
 const startTime = ref(null);
 
-function stopTimer() {
+async function pauseTimerAndCheckout() {
+  // Stopping the timer
   clearInterval(newTimer);
-  minutes.value = props.duration;
-  seconds.value = 0;
   startTime.value = null;
+  timerStarted.value = false;
+  // Canceling the pre-scheduled notification
+  await cancelPendingNotifications();
+
+  // If card type is reward just update the reward left duration
+  if (props.cardType === "reward") {
+    const rewardDetails = {
+      id: props.id,
+      duration: `${displayMinutes.value}:${displaySeconds.value}`,
+    };
+    store.dispatch("updateRewardInList", rewardDetails);
+    return;
+  }
+
+  // Calculating how much time has passed
+  const timePassed =
+    initialMinutes.value - minutes.value - 1 + (60 - seconds.value) / 60;
+  // Calculating the points
+  const currentPoints = calculatePoints(timePassed);
+  // Reset Timer
+  resetTimer();
+  // If app platform is not web, schedule an immediate notification for adding points to wallet
+  if (appPlatform !== "web") {
+    scheduleNotification(getNotificationObject(true, currentPoints));
+    return;
+  }
+  // If you've reached till here then platform is web, so add points to wallet and play cha-ching
+  addMoneyInWallet(currentPoints);
+  playNotificationAudio(props.cardType);
+}
+
+function resetTimer() {
+  minutes.value = initialMinutes.value;
+  seconds.value = initialSeconds.value;
 }
 
 function startTimer() {
@@ -155,26 +199,25 @@ function startTimer() {
     if (minutes.value < 0 || (minutes.value <= 0 && seconds.value <= 0)) {
       if (appPlatform === "web") executeEndActions();
       timerStarted.value = false;
-      minutes.value = props.duration;
-      seconds.value = 0;
       clearInterval(newTimer);
+      resetTimer();
     }
   }, 1000);
 }
 
 watch(active, () => {
   timerStarted.value = false;
-  minutes.value = props.duration;
-  seconds.value = 0;
   clearInterval(newTimer);
+  resetTimer();
 });
 
 function deleteReward() {
   emit("delete-item");
 }
 
-function addMoneyInWallet() {
-  store.dispatch("addMoneyInWallet", pointsWorth.value);
+function addMoneyInWallet(money) {
+  if (!money) money = pointsWorth.value;
+  store.dispatch("addMoneyInWallet", money);
 }
 
 function addRewardAndSpendMoneyFromWallet() {
@@ -202,22 +245,25 @@ function executeEndActions() {
 }
 
 const scheduleNotification = inject("schedule-notification");
+const cancelPendingNotifications = inject("cancel-pending-notifications");
 
-function getNotificationObject() {
-  const durationInMilliSeconds = parseInt(`${props.duration}`) * 60 * 1000;
+function getNotificationObject(immediate = false, points) {
+  const durationInMilliSeconds =
+    (initialMinutes.value * 60 + initialSeconds.value) * 1000;
+  if (!points) points = pointsWorth.value;
 
   const notificationObject = {
     task: {
       title: `Timer has ended for: ${props.title}`,
-      body: `${pointsWorth.value} coins got credited to your wallet`,
-      largeBody: `${pointsWorth.value} coins got credited to your wallet`,
+      body: `${points} coins got credited to your wallet`,
+      largeBody: `${points} coins got credited to your wallet`,
       schedule: {
         at: new Date(startTime.value + durationInMilliSeconds),
         allowWhileIdle: true,
       },
       channelId: "transactions",
       extra: {
-        points: pointsWorth.value,
+        points,
         action: "credit",
         type: props.cardType,
         id: props.id,
@@ -247,13 +293,15 @@ function getNotificationObject() {
     },
   };
 
+  if (immediate) delete notificationObject[props.cardType].schedule;
+
   return {
     id: 1,
     ...notificationObject[props.cardType],
   };
 }
 
-function takeAction() {
+async function takeAction() {
   if (actionDisabled.value) return;
 
   if (["task", "reward"].includes(props.cardType)) {
@@ -261,7 +309,7 @@ function takeAction() {
 
     // Stopping the timer if stop button is clicked
     if (!timerStarted.value) {
-      stopTimer();
+      await pauseTimerAndCheckout();
       return;
     }
     //Set starting time

@@ -61,6 +61,7 @@ if (appPlatform !== "web") {
     name: "transactions",
     sound: "cash_register.mp3",
     visibility: 1,
+    importance: 5,
     lights: true,
     vibration: true,
   })
@@ -76,6 +77,7 @@ if (appPlatform !== "web") {
     name: "general",
     sound: "notification_sound.mp3",
     visibility: 1,
+    importance: 5,
     lights: true,
     vibration: true,
   })
@@ -113,7 +115,15 @@ async function scheduleNotification(notification) {
   });
 }
 
+async function cancelPendingNotifications() {
+  if (appPlatform === "web") return;
+
+  const pendingNotifications = await LocalNotifications.getPending();
+  await LocalNotifications.cancel(pendingNotifications);
+}
+
 provide("schedule-notification", scheduleNotification);
+provide("cancel-pending-notifications", cancelPendingNotifications);
 
 onMounted(async () => {
   loadFromLocalStorage();
@@ -164,9 +174,16 @@ html {
   padding: 0.8rem 2.4rem;
   font-size: 1.4rem;
   text-decoration: none;
-  border: 1px solid var(--surface-bg-color-2);
+  // border: 1px solid var(--surface-bg-color-2);
+  background-color: var(--surface-bg-color-1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border-radius: 4px;
+  color: var(--text-color);
+  border: 1px solid var(--input-bg-color);
+
+  &:not(:last-of-type) {
+    margin-right: 2rem;
+  }
 
   &:hover {
     cursor: pointer;
@@ -182,12 +199,12 @@ html {
     &:active {
       background-color: var(--primary-color-2);
     }
-  }
 
-  &.disabled {
-    background-color: var(--primary-color-1-disabled);
-    &:hover {
-      cursor: not-allowed;
+    &.disabled {
+      background-color: var(--primary-color-1-disabled);
+      &:hover {
+        cursor: not-allowed;
+      }
     }
   }
 }

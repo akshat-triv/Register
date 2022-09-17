@@ -73,6 +73,10 @@ export default createStore({
       state.rewardList = { ...state.rewardList, ...rewardDetails };
       localStorage.setItem("rewardList", JSON.stringify(state.rewardList));
     },
+    updateRewardInList(state, updatedDetails) {
+      Object.assign(state.rewardList[updatedDetails.id], updatedDetails);
+      localStorage.setItem("rewardList", JSON.stringify(state.rewardList));
+    },
     updateRewardTimer(state, isActive) {
       state.rewardTimer = isActive;
     },
@@ -104,6 +108,9 @@ export default createStore({
     },
     addRewardInList({ commit }, rewardDetails) {
       commit("addRewardInList", rewardDetails);
+    },
+    updateRewardInList({ commit }, updatedDetails) {
+      commit("updateRewardInList", updatedDetails);
     },
     updateRewardTimer({ commit }, isActive) {
       commit("updateRewardTimer", isActive);

@@ -61,6 +61,7 @@ if (appPlatform !== "web") {
     name: "transactions",
     sound: "cash_register.mp3",
     visibility: 1,
+    importance: 5,
     lights: true,
     vibration: true,
   })
@@ -76,6 +77,7 @@ if (appPlatform !== "web") {
     name: "general",
     sound: "notification_sound.mp3",
     visibility: 1,
+    importance: 5,
     lights: true,
     vibration: true,
   })

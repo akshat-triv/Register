@@ -179,16 +179,19 @@ function startTimer() {
   } else seconds.value -= 1;
 
   const startMinute = minutes.value;
-  let startSeconds = seconds.value;
+  const startSeconds = seconds.value;
 
   newTimer = setInterval(() => {
     const currentTime = Date.now();
-    const timeDifference = parseInt((currentTime - startTime.value) / 1000);
+    const timeDifference = parseInt(
+      `${(currentTime - startTime.value) / 1000}`
+    );
     const updatedSeconds = timeDifference % 60;
     const updatedMinutes = Math.floor(timeDifference / 60);
 
     if (seconds.value === 0 && startSeconds !== 59) {
       clearInterval(newTimer);
+      startTime.value = Date.now();
       startTimer();
       return;
     } else {
